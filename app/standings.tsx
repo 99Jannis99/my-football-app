@@ -1,0 +1,193 @@
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    ActivityIndicator,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    View,
+} from "react-native";
+import { Button, Card, Text } from "react-native-paper";
+import { fetchStandings } from "../lib/api";
+
+type Standing = {
+  rank: number;
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  points: number;
+  all: {
+    played: number;
+    win: number;
+    draw: number;
+    lose: number;
+  };
+  goalsDiff: number;
+};
+
+export default function Standings() {
+  const [standings, setStandings] = useState<Standing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    loadStandings();
+  }, []);
+
+  const loadStandings = async () => {
+    try {
+      // Bundesliga ID: 78, Season: 2023
+      const data = await fetchStandings(78, 2023);
+      setStandings(data);
+      setLoading(false);
+    } catch (err) {
+      setError("Fehler beim Laden der Tabelle");
+      setLoading(false);
+    }
+  };
+
+  const handleTeamPress = (teamId: number) => {
+    router.push({
+      pathname: "/team/[id]",
+      params: { id: teamId }
+    });
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#ffffff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error}</Text>
+        <Button
+          mode="contained"
+          onPress={loadStandings}
+          style={styles.retryButton}
+        >
+          Erneut versuchen
+        </Button>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* <View style={styles.header}>
+        <Text style={styles.headerText}>Bundesliga Tabelle</Text>
+      </View> */}
+      {standings.map((standing) => (
+        <Pressable
+          key={standing.team.id}
+          style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+          onPress={() => handleTeamPress(standing.team.id)}
+        >
+          <View style={styles.header}>
+            <Text style={styles.rank}>{standing.rank}</Text>
+            <Text style={styles.teamName}>{standing.team.name}</Text>
+          </View>
+          <Card.Content style={styles.cardContent}>
+            <View style={styles.stats}>
+              <Text style={styles.statText}>{standing.all.played}</Text>
+              <Text style={styles.statText}>{standing.all.win}</Text>
+              <Text style={styles.statText}>{standing.all.draw}</Text>
+              <Text style={styles.statText}>{standing.all.lose}</Text>
+              <Text style={styles.statText}>{standing.goalsDiff}</Text>
+              <Text style={styles.points}>{standing.points}</Text>
+            </View>
+          </Card.Content>
+        </Pressable>
+      ))}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1a1a1a",
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1a1a1a",
+  },
+  header: {
+    flexDirection: "row",
+    padding: 16,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#ffffff",
+  },
+  card: {
+    padding: 16,
+    margin: 8,
+    backgroundColor: "#2a2a2a",
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  cardPressed: {
+    backgroundColor: "#3a3a3a",
+    transform: [{ scale: 0.98 }],
+    elevation: 1,
+    shadowOpacity: 0.2,
+  },
+  cardContent: {
+    flexDirection: "row",
+  },
+  rank: {
+    width: 30,
+    fontSize: 16,
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginLeft: 8,
+  },
+  teamName: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#ffffff",
+    marginLeft: 8,
+  },
+  stats: {
+    flexDirection: "row",
+  },
+  statText: {
+    width: 30,
+    textAlign: "center",
+    color: "#cccccc",
+    marginLeft: 8,
+  },
+  points: {
+    width: 40,
+    textAlign: "center",
+    color: "#ffffff",
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
+  errorText: {
+    color: "#ff4444",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: "#666666",
+  },
+});
