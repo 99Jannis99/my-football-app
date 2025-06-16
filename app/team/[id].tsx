@@ -1,15 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    StyleSheet,
-    View,
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 import { Button, Text } from "react-native-paper";
-import { TeamDetailsInfo, TeamStatistics, fetchTeamDetails, fetchTeamStatistics } from "../../lib/api";
+import {
+  TeamDetailsInfo,
+  TeamStatistics,
+  fetchStandings,
+  fetchTeamDetails,
+} from "../../lib/api";
 
 export default function TeamDetails() {
   const { id } = useLocalSearchParams();
@@ -35,10 +40,16 @@ export default function TeamDetails() {
 
   const loadTeamDetails = async () => {
     try {
-      const [details, stats] = await Promise.all([
+      const [details, allStandings] = await Promise.all([
         fetchTeamDetails(Number(id)),
-        fetchTeamStatistics(Number(id))
+        fetchStandings(78, 2023),
       ]);
+
+      // Finde das Team in der Tabelle
+      const stats = allStandings.find(
+        (team: TeamStatistics) => team.team.id === Number(id)
+      );
+
       setTeamDetails(details);
       setTeamStats(stats);
       setLoading(false);
@@ -150,14 +161,18 @@ export default function TeamDetails() {
               <Text style={styles.statValue}>{teamStats.goalsDiff}</Text>
               <Text style={styles.statLabel}>Tordifferenz</Text>
             </View>
-            {teamStats.goals && (
+            {teamStats.all.goals && (
               <>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>{teamStats.goals.for}</Text>
-                  <Text style={styles.statLabel}>Geschossene Tore</Text>
+                  <Text style={styles.statValue}>
+                    {teamStats.all.goals.for}
+                  </Text>
+                  <Text style={styles.statLabel}>Tore</Text>
                 </View>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>{teamStats.goals.against}</Text>
+                  <Text style={styles.statValue}>
+                    {teamStats.all.goals.against}
+                  </Text>
                   <Text style={styles.statLabel}>Gegentore</Text>
                 </View>
               </>

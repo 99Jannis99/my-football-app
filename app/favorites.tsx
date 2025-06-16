@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
-import { TeamStatistics, fetchTeamStatistics } from "../lib/api";
+import { TeamStatistics, fetchStandings } from "../lib/api";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -21,10 +21,14 @@ export default function Favorites() {
       const favoriteTeams = storedFavorites ? JSON.parse(storedFavorites) : [];
       setFavorites(favoriteTeams);
 
-      // Lade Statistiken für alle Favoriten
-      const stats = await Promise.all(
-        favoriteTeams.map((teamId: number) => fetchTeamStatistics(teamId))
+      // Einmal die komplette Tabelle holen
+      const allStandings = await fetchStandings(78, 2023);
+      
+      // Nur die Teams filtern, die in den Favoriten sind
+      const stats = allStandings.filter((team: TeamStatistics) => 
+        favoriteTeams.includes(team.team.id)
       );
+      
       setTeamStats(stats);
       setLoading(false);
     } catch (error) {

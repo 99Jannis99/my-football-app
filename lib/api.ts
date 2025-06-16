@@ -6,7 +6,7 @@ const headers = {
   "x-rapidapi-host": "api-football-v1.p.rapidapi.com",
 };
 
-// Beispieltyp für Team-Infos
+// Hier haben wir die Typen für die API-Aufrufe definiert
 export type TeamDetailsInfo = {
   team: {
     id: number;
@@ -28,7 +28,6 @@ export type TeamDetailsInfo = {
   };
 };
 
-// Beispieltyp für Standings (Liga-Tabelle)
 export type TeamStatistics = {
   rank: number;
   team: {
@@ -42,15 +41,15 @@ export type TeamStatistics = {
     win: number;
     draw: number;
     lose: number;
-  };
-  goals: {
-    for: number;
-    against: number;
+    goals: {
+      for: number;
+      against: number;
+    };
   };
   goalsDiff: number;
 };
 
-// Holt die Tabelle einer Liga (z. B. Bundesliga: league=78, season=2023)
+// Holt die Tabelle einer Liga (hier Bundesliga: league=78, season=2023)
 export const fetchStandings = async (leagueId: number, season: number) => {
   const res = await fetch(
     `${BASE_URL}/standings?league=${leagueId}&season=${season}`,
@@ -88,43 +87,4 @@ export const fetchTeamDetails = async (
     throw new Error("Team nicht gefunden");
   }
   return data.response[0];
-};
-
-// Holt die Quoten für ein bestimmtes Spiel
-export const fetchOdds = async (
-  leagueId: number,
-  bookmakerId: number,
-  page: number = 1
-) => {
-  const res = await fetch(
-    `${BASE_URL}/odds?league=${leagueId}&bookmaker=${bookmakerId}&page=${page}`,
-    {
-      method: "GET",
-      headers,
-    }
-  );
-
-  if (!res.ok) {
-    console.error("Fehler beim API-Aufruf:", res.status, res.statusText);
-    throw new Error("API request failed");
-  }
-
-  const data = await res.json();
-  return data.response ?? [];
-};
-
-// Beispiel: Holt Team-Statistiken über Standings
-export const fetchTeamStatistics = async (
-  teamId: number,
-  leagueId: number = 78,
-  season: number = 2023
-): Promise<TeamStatistics> => {
-  const standings = await fetchStandings(leagueId, season);
-  const teamStats = standings.find((team: TeamStatistics) => team.team.id === teamId);
-
-  if (!teamStats) {
-    throw new Error("Team-Statistiken nicht gefunden");
-  }
-
-  return teamStats;
 };

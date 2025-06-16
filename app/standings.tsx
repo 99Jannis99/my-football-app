@@ -1,34 +1,17 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
-import { fetchStandings } from "../lib/api";
-
-type Standing = {
-  rank: number;
-  team: {
-    id: number;
-    name: string;
-    logo: string;
-  };
-  points: number;
-  all: {
-    played: number;
-    win: number;
-    draw: number;
-    lose: number;
-  };
-  goalsDiff: number;
-};
+import { TeamStatistics, fetchStandings } from "../lib/api";
 
 export default function Standings() {
-  const [standings, setStandings] = useState<Standing[]>([]);
+  const [standings, setStandings] = useState<TeamStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -39,7 +22,6 @@ export default function Standings() {
 
   const loadStandings = async () => {
     try {
-      // Bundesliga ID: 78, Season: 2023
       const data = await fetchStandings(78, 2023);
       setStandings(data);
       setLoading(false);
@@ -52,7 +34,7 @@ export default function Standings() {
   const handleTeamPress = (teamId: number) => {
     router.push({
       pathname: "/team/[id]",
-      params: { id: teamId }
+      params: { id: teamId },
     });
   };
 
@@ -81,9 +63,6 @@ export default function Standings() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerText}>Bundesliga Tabelle</Text>
-      </View> */}
       {standings.map((standing) => (
         <Pressable
           key={standing.team.id}
