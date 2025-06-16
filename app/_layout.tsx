@@ -47,8 +47,8 @@ export default function RootLayout() {
       <Tabs.Screen
         name="team"
         options={{
-          href: null, // Versteckt den Tab
-          headerShown: false, // Versteckt den Header
+          href: null,
+          headerShown: false,
         }}
       />
     </Tabs>

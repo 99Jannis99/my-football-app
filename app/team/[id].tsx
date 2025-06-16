@@ -3,6 +3,7 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  BackHandler,
   Image,
   ScrollView,
   StyleSheet,
@@ -26,8 +27,18 @@ export default function TeamDetails() {
   const navigation = useNavigation();
 
   useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        router.push("/home");
+        return true;
+      }
+    );
+
     loadTeamDetails();
     checkIfFavorite();
+
+    return () => backHandler.remove();
   }, [id]);
 
   useEffect(() => {
@@ -103,7 +114,7 @@ export default function TeamDetails() {
         <Text style={styles.errorText}>Team nicht gefunden</Text>
         <Button
           mode="contained"
-          onPress={() => router.back()}
+          onPress={() => router.push("/home")}
           style={styles.button}
         >
           Zurück
