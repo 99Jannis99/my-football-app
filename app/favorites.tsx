@@ -11,6 +11,12 @@ import {
 import { Button, Card, Text } from "react-native-paper";
 import { TeamStatistics, fetchStandings } from "../lib/api";
 
+/**
+ * Favorites-Komponente
+ * Zeigt die favorisierten Teams des Benutzers an.
+ * Lädt die Favoriten aus dem AsyncStorage und zeigt deren aktuelle Statistiken.
+ * Ermöglicht Navigation zu den Team-Details durch Klick auf ein Team.
+ */
 export default function Favorites() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [teamStats, setTeamStats] = useState<TeamStatistics[]>([]);
@@ -18,12 +24,14 @@ export default function Favorites() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  // Lädt die Favoriten neu, wenn der Benutzer zur Favoriten-Seite navigiert
   useFocusEffect(
     useCallback(() => {
       loadFavorites();
     }, [])
   );
 
+  // Lädt die Favoriten aus dem AsyncStorage und filtert die Bundesliga-Tabelle nach den favorisierten Teams
   const loadFavorites = async () => {
     try {
       const storedFavorites = await AsyncStorage.getItem("favorites");
@@ -48,6 +56,7 @@ export default function Favorites() {
     }
   };
 
+  // Navigation zur Page [id] in team mit Mitgabe der ID als Parameter
   const handleTeamPress = (teamId: number) => {
     router.push({
       pathname: "/team/[id]",
@@ -55,6 +64,7 @@ export default function Favorites() {
     });
   };
 
+  // Zeigt den Ladekreis an wenn die standing noch nicht komplett geladen sind
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -63,6 +73,7 @@ export default function Favorites() {
     );
   }
 
+  // zeigt die Error-Message an wenn die standings nicht geladen werden konnten, plus Button zum neuen Aufruf der loadStandings Funktion
   if (error) {
     console.log("error");
     return (
@@ -79,6 +90,7 @@ export default function Favorites() {
     );
   }
 
+  // Zeigt eine Nachricht an, wenn keine Favoriten vorhanden sind
   if (favorites.length === 0) {
     return (
       <View style={styles.centered}>

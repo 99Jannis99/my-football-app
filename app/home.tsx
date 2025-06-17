@@ -3,8 +3,11 @@ import { useEffect, useRef } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
+  // Verbindungspunkt (Anker) um die Animation im Nachhinein zu steuern
   const animationRef = useRef<LottieView>(null);
 
+
+  // spielt die Animation ab sobald die Page geladen wird
   useEffect(() => {
     animationRef.current?.play();
   }, []);

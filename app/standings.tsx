@@ -10,16 +10,25 @@ import {
 import { Button, Card, Text } from "react-native-paper";
 import { TeamStatistics, fetchStandings } from "../lib/api";
 
+/**
+ * Standings-Komponente
+ * Zeigt die aktuelle Tabelle der Bundesliga an.
+ * Ermöglicht Navigation zu den Team-Details durch Klick auf ein Team.
+ */
+
 export default function Standings() {
+  // States für die Tabelle, Ladezustand und Fehlerbehandlung
   const [standings, setStandings] = useState<TeamStatistics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  // aufruf der loadStandings Funktion beim laden der Page
   useEffect(() => {
     loadStandings();
   }, []);
 
+  // Funktion zum laden der standings, ruft die fetchStandings Funktion aus der api.ts auf, bekommt TeamStatistics zurück
   const loadStandings = async () => {
     try {
       const data = await fetchStandings(78, 2023);
@@ -32,6 +41,7 @@ export default function Standings() {
     }
   };
 
+  // Navigation zur Page [id] in team mit Mitgabe der ID als Parameter
   const handleTeamPress = (teamId: number) => {
     router.push({
       pathname: "/team/[id]",
@@ -39,6 +49,7 @@ export default function Standings() {
     });
   };
 
+  // Zeigt den Ladekreis an wenn die standing noch nicht komplett geladen sind
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -47,6 +58,7 @@ export default function Standings() {
     );
   }
 
+  // zeigt die Error-Message an wenn die standings nicht geladen werden konnten, plus Button zum neuen Aufruf der loadStandings Funktion
   if (error) {
     return (
       <View style={styles.centered}>

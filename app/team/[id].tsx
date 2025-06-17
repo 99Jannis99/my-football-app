@@ -17,6 +17,12 @@ import {
   fetchTeamDetails,
 } from "../../lib/api";
 
+/**
+ * Team-Detail-Komponente
+ * Zeigt detaillierte Informationen über ein ausgewähltes Team an.
+ * Enthält Team-Statistiken, Stadion-Informationen und Favoriten-Funktionalität.
+ */
+
 export default function TeamDetails() {
   const { id } = useLocalSearchParams();
   const [teamDetails, setTeamDetails] = useState<TeamDetailsInfo | null>(null);
@@ -25,6 +31,7 @@ export default function TeamDetails() {
   const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
 
+  // Event-Handler für den Zurück-Button und initiales Laden der Daten
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -40,6 +47,7 @@ export default function TeamDetails() {
     return () => backHandler.remove();
   }, [id]);
 
+  // Lädt die Team-Details und die aktuelle Tabelle
   const loadTeamDetails = async () => {
     try {
       const [details, allStandings] = await Promise.all([
@@ -61,6 +69,7 @@ export default function TeamDetails() {
     }
   };
 
+  // Prüft, ob das aktuelle Team in den Favoriten ist
   const checkIfFavorite = async () => {
     try {
       const favorites = await AsyncStorage.getItem("favorites");
@@ -71,6 +80,7 @@ export default function TeamDetails() {
     }
   };
 
+  // Schaltet das Team zwischen Favoriten und Nicht-Favoriten um
   const toggleFavorite = async () => {
     try {
       const favorites = await AsyncStorage.getItem("favorites");
@@ -91,6 +101,7 @@ export default function TeamDetails() {
     }
   };
 
+  // Zeigt den Ladekreis an wenn die standing noch nicht komplett geladen sind
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -99,6 +110,7 @@ export default function TeamDetails() {
     );
   }
 
+  // zeigt die Error-Message an wenn das Team nicht geladen werden konnten, plus Button zum zurück gehen zur Home-Page
   if (!teamDetails) {
     return (
       <View style={styles.centered}>
