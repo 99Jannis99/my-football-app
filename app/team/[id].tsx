@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -24,7 +24,6 @@ export default function TeamDetails() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
-  const navigation = useNavigation();
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -40,14 +39,6 @@ export default function TeamDetails() {
 
     return () => backHandler.remove();
   }, [id]);
-
-  useEffect(() => {
-    if (teamDetails) {
-      navigation.setOptions({
-        title: teamDetails.team.name,
-      });
-    }
-  }, [teamDetails]);
 
   const loadTeamDetails = async () => {
     try {

@@ -25,6 +25,7 @@ export default function Standings() {
       const data = await fetchStandings(78, 2023);
       setStandings(data);
       setLoading(false);
+      setError(null);
     } catch (err) {
       setError("Fehler beim Laden der Tabelle");
       setLoading(false);

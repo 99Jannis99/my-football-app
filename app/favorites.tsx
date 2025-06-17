@@ -1,14 +1,21 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
+import { Button, Card, Text } from "react-native-paper";
 import { TeamStatistics, fetchStandings } from "../lib/api";
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [teamStats, setTeamStats] = useState<TeamStatistics[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useFocusEffect(
@@ -25,17 +32,19 @@ export default function Favorites() {
 
       // Einmal die komplette Tabelle holen
       const allStandings = await fetchStandings(78, 2023);
-      
+
       // Nur die Teams filtern, die in den Favoriten sind
-      const stats = allStandings.filter((team: TeamStatistics) => 
+      const stats = allStandings.filter((team: TeamStatistics) =>
         favoriteTeams.includes(team.team.id)
       );
-      
+
       setTeamStats(stats);
       setLoading(false);
+      setError(null);
     } catch (error) {
       console.error("Fehler beim Laden der Favoriten:", error);
       setLoading(false);
+      setError("Fehler beim Laden der Tabelle");
     }
   };
 
@@ -54,11 +63,28 @@ export default function Favorites() {
     );
   }
 
+  if (error) {
+    console.log("error");
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error}</Text>
+        <Button
+          mode="contained"
+          onPress={loadFavorites}
+          style={styles.retryButton}
+        >
+          Erneut versuchen
+        </Button>
+      </View>
+    );
+  }
+
   if (favorites.length === 0) {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>
-          Keine Favoriten vorhanden. Fügen Sie Teams aus der Tabelle zu Ihren Favoriten hinzu.
+          Keine Favoriten vorhanden. Fügen Sie Teams aus der Tabelle zu Ihren
+          Favoriten hinzu.
         </Text>
       </View>
     );
@@ -165,5 +191,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     lineHeight: 24,
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: "#666666",
   },
 });
